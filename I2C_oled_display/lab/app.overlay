@@ -1,0 +1,31 @@
+/*
+ * SSD1306 OLED over I2C0 (J25 pin 3=SCL, pin 4=SDA) on SR110 RDK.
+ *
+ * CONFIRMED (real hardware, sr100_pinctrl.dtsi grep):
+ *   i2c0_ms_scl-labeled node "i2c0-ms-scl"
+ *   i2c0_ms_sda-labeled node "i2c0-ms-sda"
+ * -- no "_b"/"_c" suffix on I2C0, unlike I2C1's i2c1_ms_scl_b/i2c1_ms_sda_b.
+ *
+ * &i2c0 itself is NOT enabled in the stock sr100_rdk_m55.dts/m4.dts
+ * (only &i2c1 is used there) -- this overlay is what turns it on.
+ */
+&i2c0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c0_ms_scl &i2c0_ms_sda>;
+	clock-frequency = <I2C_BITRATE_STANDARD>;
+
+	ssd1306: ssd1306@3d {
+		compatible = "solomon,ssd1306";  /* NOT "ssd1306fb" -- confirmed on real hardware, Zephyr v4.4.1 */
+		reg = <0x3d>;              /* TODO/VERIFY: some modules use 0x3c instead */
+		width = <128>;
+		height = <64>;
+		segment-offset = <0>;
+		page-offset = <0>;
+		display-offset = <0>;
+		multiplex-ratio = <63>;
+		segment-remap;
+		com-invdir;
+		prechargep = <0x22>;
+	};
+};

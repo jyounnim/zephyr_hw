@@ -1,0 +1,26 @@
+/*
+ * I2C0 is left disabled by default in the SoC-level devicetree
+ * (zephyr_srsdk/dts/arm/syna/astra_sr/sr100_m55.dtsi:268-277) and has
+ * no pinctrl assignment in the board .dts, unlike I2C1 which is
+ * already enabled with a PCA6416A GPIO expander on it. This overlay
+ * enables I2C0 and wires it to its pin group.
+ *
+ * Pin group names confirmed by grepping sr100_pinctrl.dtsi:
+ *   - i2c0_ms_scl  (node name "i2c0-ms-scl", line 603)
+ *   - i2c0_ms_sda  (node name "i2c0-ms-sda", line 586)
+ * Both are marked /omit-if-no-ref/, meaning they only get compiled in
+ * once something (this overlay) references them — that's why I2C0
+ * stayed disabled with no error until now.
+ *
+ * clock-frequency mirrors I2C1's board-level setting (0x186a0 = 100 kHz,
+ * standard mode). TODO/VERIFY: confirm 100 kHz is appropriate for
+ * whatever device you attach to I2C0 — bump to 400000 for fast mode
+ * if needed and the device supports it.
+ */
+
+&i2c0 {
+	status = "okay";
+	pinctrl-0 = <&i2c0_ms_scl &i2c0_ms_sda>;
+	pinctrl-names = "default";
+	clock-frequency = <100000>;
+};
