@@ -1,24 +1,23 @@
 /*
- * I2C Bus Scanner (Zephyr / syna_zephyr_sdk, SR110)
+ * I2C Bus Scanner (Zephyr, ESP32-S3)
  *
- * Runs a one-shot scan of I2C0 then I2C1 in a dedicated thread at
- * boot and prints an `i2cdetect`-style grid for each. Useful for
- * checking what address a newly-attached sensor or module shows up
- * at.
+ * Runs a one-shot scan of I2C0 in a dedicated thread at boot and
+ * prints an `i2cdetect`-style grid. Useful for checking what address
+ * a newly-attached sensor or display module shows up at.
  *
- * Key devicetree facts (sr100_m55.dtsi / sr100_rdk_m55.dts / sr100_pinctrl.dtsi):
- *   - Node labels &i2c0 / &i2c1 are the SoC's I2C controllers.
- *   - I2C1 is already enabled and pinctrl'd in the board .dts, with a
- *     PCA6416A GPIO expander on it — no overlay needed for I2C1.
- *   - I2C0 ships "status = disabled" with no pinctrl at the SoC
- *     level. The overlay in boards/sr100_rdk_sr100_m55.overlay
- *     enables it via pin groups i2c0_ms_scl / i2c0_ms_sda. The build
- *     must include that overlay or DEVICE_DT_GET(I2C0_NODE) fails to
- *     link.
+ * Probe method: a ZERO-LENGTH i2c_write() per address, matching the
+ * official Zephyr `samples/drivers/i2c/i2c_scanner` sample. A
+ * zero-length write only tests whether the target ACKs its own
+ * address byte - it makes no assumption about the device's internal
+ * register/read-pointer state, which is what makes it reliable across
+ * many different device types.
  *
- * Probe method: a 1-byte i2c_read() per address is what reliably
- * detects devices on this board's DesignWare I2C driver port
- * (confirmed against a known-good reference sample).
+ * NOTE: an earlier version of this scanner probed with a 1-byte
+ * i2c_read() instead. That approach intermittently missed real
+ * devices on this SoC family - Zephyr issue #45008 ("esp32: i2c_read()
+ * error was returned successfully at the bus nack") documents that
+ * i2c_read()'s NACK detection is not fully reliable on ESP32's I2C
+ * driver. Zero-length write avoids relying on that path entirely.
  */
 
 #include <zephyr/kernel.h>
@@ -28,7 +27,6 @@
 #include <stdbool.h>
 
 #define I2C0_NODE DT_NODELABEL(i2c0)
-#define I2C1_NODE DT_NODELABEL(i2c1)
 
 #define I2C_SCAN_ADDR_MIN 0x08U   /* addresses below this are reserved */
 #define I2C_SCAN_ADDR_MAX 0x77U   /* addresses above this are reserved */
@@ -36,11 +34,10 @@
 #define SCAN_THREAD_STACK_SIZE 2048
 #define SCAN_THREAD_PRIORITY   5
 
-/* Probe a single 7-bit address with a 1-byte read. */
+/* Probe a single 7-bit address with a zero-length write. */
 static bool i2c_probe_addr(const struct device *bus, uint8_t addr)
 {
-	uint8_t byte;
-	int ret = i2c_read(bus, &byte, 1, addr);
+	int ret = i2c_write(bus, NULL, 0, addr);
 
 	return (ret == 0);
 }
@@ -90,11 +87,16 @@ static void scan_thread_entry(void *p1, void *p2, void *p3)
 	ARG_UNUSED(p3);
 
 	const struct device *i2c0 = DEVICE_DT_GET(I2C0_NODE);
-	const struct device *i2c1 = DEVICE_DT_GET(I2C1_NODE);
 
-	printk("\n=== I2C Bus Scanner (SR110) ===\n");
+	printk("\n=== I2C Bus Scanner (ESP32-S3) ===\n");
 	scan_bus(i2c0, "I2C0");
-	scan_bus(i2c1, "I2C1");
+
+	/* If you've also enabled a second I2C controller in your overlay,
+	 * add it the same way, e.g.:
+	 *
+	 *   const struct device *i2c1 = DEVICE_DT_GET(DT_NODELABEL(i2c1));
+	 *   scan_bus(i2c1, "I2C1");
+	 */
 }
 
 K_THREAD_DEFINE(scan_tid, SCAN_THREAD_STACK_SIZE, scan_thread_entry,

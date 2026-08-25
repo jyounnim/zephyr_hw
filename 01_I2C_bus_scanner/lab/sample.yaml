@@ -1,5 +1,5 @@
 sample:
-  description: Scan I2C0 and I2C1 for connected devices once at boot, from a dedicated thread
+  description: Scan I2C0 for connected devices once at boot, from a dedicated thread
   name: i2c_bus_scanner
 common:
   tags:
@@ -7,9 +7,9 @@ common:
 tests:
   sample.i2c.bus_scanner:
     platform_allow:
-      - sr100_rdk/sr100/m55
+      - esp32s3_devkitc/esp32s3/procpu
     harness: console
     harness_config:
       type: one_line
       regex:
-        - "=== I2C Bus Scanner \\(SR110\\) ==="
+        - "=== I2C Bus Scanner \\(ESP32-S3\\) ==="
