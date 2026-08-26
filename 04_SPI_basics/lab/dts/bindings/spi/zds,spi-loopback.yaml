@@ -1,0 +1,5 @@
+description: Generic placeholder SPI device node, used for a bus-level loopback self-test
+
+compatible: "zds,spi-loopback"
+
+include: spi-device.yaml
