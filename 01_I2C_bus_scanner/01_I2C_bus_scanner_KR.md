@@ -98,7 +98,11 @@ ESP32-S3 보드의 I2C0은 기본적으로 `status = "disabled"`인 경우가 �
 };
 ```
 
-> ⚠️ **확인 필요**: 사용 중인 ESP32-S3 보드 정의 파일이 `i2c0_default` pinctrl을 이미 갖고 있을 수도 있습니다 (`status`만 disabled인 채로). 그 경우 위 `&pinctrl` 블록은 빼고 `&i2c0` 블록만 남기면 됩니다. `west build -t devicetree` 후 생성되는 `build/zephyr/zephyr.dts`에서 `i2c0_default`가 이미 정의되어 있는지 먼저 확인하세요. GPIO8/GPIO9는 ESP32-S3 Arduino 프레임워크의 I2C 기본 핀과 동일하게 맞춘 예시 값입니다 — 실제 배선에 맞게 조정하세요.
+> ⚠️ **확인 필요 — 정정**: `esp32s3_devkitc` 보드는 실제로 `i2c0_default` pinctrl 노드를 **이미 갖고 있습니다** (보드 기본값: SDA=GPIO1, SCL=GPIO2, `status`만 disabled). 원래 이 문서에는 "그 경우 위 `&pinctrl` 블록은 빼고 `&i2c0` 블록만 남기면 된다"고 적혀 있었는데, 이건 부정확한 안내입니다.
+>
+> 실제로는 **위 `&pinctrl` 블록을 그대로 두는 것이 정답**입니다. 이 오버레이는 보드가 이미 갖고 있는 `i2c0_default`와 **똑같은 이름**으로 노드를 다시 선언하고 있는데, Zephyr devicetree 병합 규칙상 나중에 선언된 프로퍼티가 이전 값을 덮어쓰기 때문에, 이 블록이 있어야 보드 기본값(GPIO1/GPIO2)이 아니라 이 실습이 의도한 GPIO8/GPIO9로 실제로 재배선됩니다. 반대로 이 블록을 빼고 `&i2c0`만 남기면, I2C0은 보드 기본값인 GPIO1/GPIO2로 조용히 되돌아가 버립니다 — 배선표(GPIO8/9)와 실제 동작 핀이 어긋나서 스캔이 아무것도 못 찾는 문제로 이어질 수 있습니다 (다른 실습에서 GPIO8/9 vs GPIO1/2 혼동으로 실제 이 문제를 겪은 적이 있습니다).
+>
+> `west build -t devicetree` 후 생성되는 `build/zephyr/zephyr.dts`에서 최종 `i2c0_default`의 `pinmux` 값이 GPIO8/GPIO9로 반영됐는지 확인하는 걸 권장합니다.
 
 ## Build
 
@@ -139,7 +143,7 @@ Scan complete on I2C0: 1 device(s) found
 | 증상 | 원인 / 해결 |
 |---|---|
 | `[I2C0] device not ready` | 오버레이가 실제로 적용 안 됨 — 오버레이 파일명이 board target과 일치하는지, 아니면 `-DEXTRA_DTC_OVERLAY_FILE`로 명시했는지 확인 |
-| 아무 주소도 안 잡힘 | 배선(SDA/SCL) 확인, 풀업 저항 확인, `pinmux` 값이 실제 연결한 핀과 맞는지 확인 |
+| 아무 주소도 안 잡힘 | 배선(SDA/SCL) 확인, 풀업 저항 확인, `pinmux` 값이 실제 연결한 핀과 맞는지 확인. 위 "확인 필요 — 정정" 박스도 참고 (보드 기본 GPIO1/2로 되돌아가 있지 않은지) |
 | 특정 장치만 간헐적으로 빠짐 | 아직도 이 문제가 있다면 `i2c_probe_addr`이 zero-length write로 바뀌었는지 재확인 — read 방식으로 되돌아가 있으면 다시 이 문제가 재현될 수 있습니다 |
 | 컴파일 에러 (`I2C0_SDA_GPIO8` 등을 못 찾음) | ESP32 pinctrl 헤더가 include 안 됨 — 보드의 기본 오버레이/dtsi가 이미 처리해주는 경우가 많으니, 이 심볼이 다른 이름일 수도 있습니다. `west build -t devicetree`로 실제 사용 가능한 핀먹스 매크로 확인 |
 
