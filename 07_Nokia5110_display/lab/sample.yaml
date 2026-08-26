@@ -1,0 +1,20 @@
+sample:
+  name: Nokia 5110 (PCD8544) LCD - raw SPI
+  description: >
+    Drive an 84x48 PCD8544-based Nokia 5110 monochrome LCD over raw SPI
+    (MOSI/SCLK/CS + separate RST/DC GPIOs), without the Zephyr
+    Display/CFB subsystem.
+common:
+  tags:
+    - spi
+    - display
+  platform_allow:
+    - esp32s3_devkitc/esp32s3/procpu
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "Nokia 5110 initialized and .* written"
+tests:
+  sample.spi.nokia5110_pcd8544:
+    build_only: true

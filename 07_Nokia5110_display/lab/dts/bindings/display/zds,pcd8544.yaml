@@ -1,0 +1,23 @@
+description: |
+  PCD8544-based Nokia 5110 monochrome LCD (84x48), driven over raw SPI
+  from application code - no Zephyr Display/CFB subsystem involved.
+
+compatible: "zds,pcd8544"
+
+include: spi-device.yaml
+
+properties:
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: >
+      Reset pin. Active low - pulse low to reset the PCD8544 controller.
+
+  dc-gpios:
+    type: phandle-array
+    required: true
+    description: >
+      Data/Command select pin. Driven low before a command byte is
+      written, high before a data byte is written. (Property name
+      matches the convention used by Zephyr's own mipi-dbi-spi
+      display binding.)
