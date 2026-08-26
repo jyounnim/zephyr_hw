@@ -8,6 +8,8 @@ The first **color** display in this series - an **ST7735-controller 128x160 colo
 
 Like the Nokia 5110 (Lab 07), this module is a **write-only display with no MISO line**, so the overlay only needs MOSI/SCLK/CS.
 
+> ✅ **Hardware-verified** — confirmed on real ESP32-S3-DevKitC-1 + ST7735 128x160 TFT hardware. An initial blank-screen report turned out not to be a code/overlay bug but a wiring mistake (the same pattern as Lab 07) - once the wiring was corrected, both the text and the color bars displayed correctly. A good reminder that with SPI, wrong wiring produces no error at all, just a blank screen.
+
 ## Requirements
 
 - An ST7735 128x160 color TFT module ("green tab" variant - see the "Tab Color" section below)

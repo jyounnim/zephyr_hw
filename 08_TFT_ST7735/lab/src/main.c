@@ -22,6 +22,13 @@
  * conservative relative to this controller's real ceiling (many
  * modules run at 20+ MHz); raise spi-max-frequency in the overlay once
  * wiring is confirmed solid.
+ *
+ * Hardware-verified: confirmed working on real ESP32-S3-DevKitC-1 +
+ * ST7735 128x160 TFT hardware (text + color bars both render
+ * correctly with the green-tab init sequence/offsets above). The one
+ * issue hit during bring-up was, once again, a wiring mistake rather
+ * than a code/overlay bug - the same lesson as Lab 07: SPI has no
+ * ACK, so wrong wiring just means a blank screen, never an error.
  */
 
 #include <zephyr/kernel.h>
