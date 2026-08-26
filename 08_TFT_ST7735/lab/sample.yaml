@@ -1,0 +1,21 @@
+sample:
+  name: ST7735 128x160 color TFT - raw SPI
+  description: >
+    Drive an ST7735 "green tab" 128x160 color TFT over raw SPI
+    (MOSI/SCLK/CS + separate RST/DC GPIOs), without the Zephyr
+    Display/CFB subsystem. Draws text plus an R/G/B/Y/M/C/W color-bar
+    diagnostic.
+common:
+  tags:
+    - spi
+    - display
+  platform_allow:
+    - esp32s3_devkitc/esp32s3/procpu
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "ST7735 initialized and .* drawn"
+tests:
+  sample.spi.st7735_tft:
+    build_only: true

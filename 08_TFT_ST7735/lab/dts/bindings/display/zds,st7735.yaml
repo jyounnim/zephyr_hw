@@ -1,0 +1,23 @@
+description: |
+  ST7735-based 128x160 color TFT ("green tab" variant), driven over raw
+  SPI from application code - no Zephyr Display/CFB subsystem involved.
+
+compatible: "zds,st7735"
+
+include: spi-device.yaml
+
+properties:
+  reset-gpios:
+    type: phandle-array
+    required: true
+    description: >
+      Reset pin. Active low - pulse low to reset the ST7735 controller.
+
+  dc-gpios:
+    type: phandle-array
+    required: true
+    description: >
+      Data/Command select pin. Driven low before a command byte is
+      written, high before a data byte is written. (Property name
+      matches the convention used by Zephyr's own mipi-dbi-spi
+      display binding, and the zds,pcd8544 binding from Lab 07.)
