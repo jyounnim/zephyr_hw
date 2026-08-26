@@ -1,0 +1,20 @@
+sample:
+  name: I2C LCD (PCF8574 + HD44780) lab
+  description: >
+    Drive a 16x2 HD44780 character LCD through a PCF8574/PCF8574A I2C
+    backpack using a raw I2C "LiquidCrystal_I2C"-style driver (no
+    Zephyr Display/CFB subsystem).
+common:
+  tags:
+    - i2c
+    - display
+  platform_allow:
+    - esp32s3_devkitc/esp32s3/procpu
+  harness: console
+  harness_config:
+    type: one_line
+    regex:
+      - "LCD initialized and .* written"
+tests:
+  sample.i2c.pcf8574_hd44780_lcd:
+    build_only: true

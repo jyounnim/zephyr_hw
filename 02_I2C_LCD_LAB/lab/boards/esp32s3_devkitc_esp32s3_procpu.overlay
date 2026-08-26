@@ -1,0 +1,28 @@
+/*
+ * ESP32-S3-DevKitC-1: enable the onboard I2C0 controller.
+ *
+ * The board's own pinctrl (esp32s3_devkitc-pinctrl.dtsi, part of the
+ * upstream Zephyr board definition) already wires i2c0_default to
+ * SDA = GPIO1 / SCL = GPIO2 and sets pinctrl-0 / pinctrl-names on
+ * &i2c0 - the SoC-level node just ships "status = disabled" by
+ * default, so this overlay only needs to flip it on.
+ *
+ * No child devicetree node for the LCD: this lab talks to the PCF8574
+ * I2C backpack directly over raw I2C (main.c uses i2c_write() with
+ * the address picked at runtime from the bus scan), so there is no
+ * Zephyr driver to bind a node to.
+ *
+ * clock-frequency is left at the standard 100 kHz. Unlike the SSD1306
+ * OLED lab (128x64 = 1024 bytes per full-screen update), a character
+ * LCD write here is 1 byte at a time over 4-bit nibbles - a few dozen
+ * bits per character - so it is far less sensitive to marginal signal
+ * integrity on a breadboard. Still, if you see garbled/missing
+ * characters, the same fix applies: add external 4.7k-ohm pull-ups
+ * on SDA/SCL to 3.3V (do not pull up to 5V, see the KR doc's power
+ * note) rather than relying on the ESP32-S3's weak internal ones.
+ */
+
+&i2c0 {
+	status = "okay";
+	clock-frequency = <100000>;
+};
