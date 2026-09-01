@@ -1,11 +1,18 @@
 /*
- * ESP32-S3-DevKitC-1: enable the onboard I2C0 controller.
+ * ESP32-S3-DevKitC-1: enable I2C0 and rewire it to SDA=GPIO8/SCL=GPIO9.
  *
- * The board's own pinctrl (esp32s3_devkitc-pinctrl.dtsi, part of the
- * upstream Zephyr board definition) already wires i2c0_default to
- * SDA = GPIO1 / SCL = GPIO2 and sets pinctrl-0 / pinctrl-names on
- * &i2c0 - the SoC-level node just ships "status = disabled" by
- * default, so this overlay only needs to flip it on.
+ * 2026-09-01 update: this lab originally relied on the board's own
+ * pinctrl (esp32s3_devkitc-pinctrl.dtsi), which wires i2c0_default to
+ * SDA=GPIO1/SCL=GPIO2 out of the box - so the overlay only had to flip
+ * status to "okay". This series has since standardized on SDA=GPIO8/
+ * SCL=GPIO9 for I2C0 across all labs (matching Lab 01's wiring and the
+ * ESP32-S3 Arduino Wire.begin() default), so this overlay now
+ * re-declares the i2c0_default pinctrl node under the same name to
+ * redirect it to GPIO8/9 - see Lab 01's doc for why re-declaring under
+ * the same node name (rather than dropping the &pinctrl block) is what
+ * actually takes effect: Zephyr's devicetree merge rules let a later
+ * property declaration win, so keeping this block is what overrides
+ * the board default instead of silently falling back to it.
  *
  * No child devicetree node for the LCD: this lab talks to the PCF8574
  * I2C backpack directly over raw I2C (main.c uses i2c_write() with
@@ -22,7 +29,20 @@
  * note) rather than relying on the ESP32-S3's weak internal ones.
  */
 
+&pinctrl {
+	i2c0_default: i2c0_default {
+		group1 {
+			pinmux = <I2C0_SDA_GPIO8>, <I2C0_SCL_GPIO9>;
+			bias-pull-up;
+			drive-open-drain;
+			output-high;
+		};
+	};
+};
+
 &i2c0 {
 	status = "okay";
 	clock-frequency = <100000>;
+	pinctrl-0 = <&i2c0_default>;
+	pinctrl-names = "default";
 };

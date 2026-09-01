@@ -11,6 +11,8 @@
 
 즉 "LCD를 향한 I2C 통신"이 아니라, **"GPIO 익스팬더를 향한 I2C 통신 + 그 뒤의 병렬 LCD 프로토콜을 흉내"** 내는 구조입니다.
 
+> ℹ️ **2026-09-01 GPIO 핀 변경**: 이 랩은 원래 보드 기본 pinctrl(SDA=GPIO1/SCL=GPIO2)을 그대로 썼지만, `Zephyr_display` 시리즈 전체가 I2C0 핀을 **SDA=GPIO8/SCL=GPIO9로 통일**하기로 결정하면서 이 랩도 오버레이를 GPIO8/9로 바꿨습니다. 아래 4절 배선표는 GPIO8/9 기준으로 갱신했습니다.
+
 ## 2. 주소: 0x27 vs 0x3F
 
 이 백팩은 어떤 익스팬더 칩이 실장되어 있느냐에 따라 I2C 주소가 다릅니다.
@@ -42,10 +44,10 @@
 | --- | --- | --- |
 | VCC | (아래 5절 참고) | VCC |
 | GND | GND | GND |
-| SDA | GPIO1 (I2C0 SDA, 보드 기본 pinctrl) | SDA |
-| SCL | GPIO2 (I2C0 SCL, 보드 기본 pinctrl) | SCL |
+| SDA | GPIO8 (I2C0 SDA, 시리즈 통일 핀) | SDA |
+| SCL | GPIO9 (I2C0 SCL, 시리즈 통일 핀) | SCL |
 
-I2C0의 보드 기본 pinctrl을 그대로 쓰므로, 오버레이는 `&i2c0 { status = "okay"; ... };`만 있으면 됩니다.
+보드 기본 pinctrl은 GPIO1/GPIO2인데, 이 시리즈는 GPIO8/9로 통일하기로 했으므로 오버레이에서 `i2c0_default`를 같은 이름으로 재선언해 덮어씁니다 — Zephyr devicetree 병합 규칙상 나중에 선언된 프로퍼티가 이전 값을 이기기 때문에, 이 블록을 빼면 조용히 보드 기본값(GPIO1/2)으로 되돌아가 버립니다 (Lab 01 문서에서 실제로 겪은 문제, 자세한 설명은 그쪽 참고).
 
 ## 5. 전원/신호 레벨 주의 (중요)
 

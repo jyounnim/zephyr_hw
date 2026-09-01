@@ -4,7 +4,9 @@
  * Display/CFB subsystem.
  *
  * Board:   ESP32-S3-DevKitC-1 (esp32s3_devkitc/esp32s3/procpu)
- * Bus:     I2C0, SDA = GPIO1, SCL = GPIO2 (board-default pinctrl)
+ * Bus:     I2C0, SDA = GPIO8, SCL = GPIO9 (2026-09-01: series-wide
+ *          GPIO8/9 unification - board default is GPIO1/GPIO2, see
+ *          the overlay and Lab 01's doc for why this is overridden)
  * Backpack address: 0x27 (PCF8574, most common "LCM1602 IIC" boards)
  *                    0x3F (PCF8574A - this is what this lab defaults to,
  *                          since that's the module this lab was built

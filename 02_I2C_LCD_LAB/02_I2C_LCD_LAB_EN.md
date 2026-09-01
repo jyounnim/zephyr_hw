@@ -11,6 +11,8 @@ This lab drives a common 16x2 HD44780-compatible character LCD sitting behind a 
 
 In other words, this isn't "I2C to the LCD" - it's **"I2C to a GPIO expander, which then bit-bangs the parallel LCD protocol behind it."**
 
+> ℹ️ **2026-09-01 GPIO pin change**: this lab originally used the board's default pinctrl (SDA=GPIO1/SCL=GPIO2), but the `Zephyr_display` series has since standardized I2C0 on **SDA=GPIO8/SCL=GPIO9**, so this lab's overlay was updated to match. The wiring table in section 4 below reflects GPIO8/9.
+
 ## 2. Address: 0x27 vs 0x3F
 
 Depending on which expander chip is populated on the backpack, the I2C address differs.
@@ -42,10 +44,10 @@ If your particular module wires this differently (some low-cost clones are repor
 | --- | --- | --- |
 | VCC | see section 5 | VCC |
 | GND | GND | GND |
-| SDA | GPIO1 (I2C0 SDA, board-default pinctrl) | SDA |
-| SCL | GPIO2 (I2C0 SCL, board-default pinctrl) | SCL |
+| SDA | GPIO8 (I2C0 SDA, series-wide pin) | SDA |
+| SCL | GPIO9 (I2C0 SCL, series-wide pin) | SCL |
 
-The board's default I2C0 pinctrl is used as-is, so the overlay only needs `&i2c0 { status = "okay"; ... };`.
+The board default is GPIO1/GPIO2, but this series standardizes on GPIO8/9, so the overlay re-declares `i2c0_default` under the same node name to override it - Zephyr's devicetree merge rules let a later property declaration win, so dropping this block would silently fall back to the board default (GPIO1/2), as happened for real in Lab 01 - see that doc for the full explanation.
 
 ## 5. Power / signal-level caution (important)
 

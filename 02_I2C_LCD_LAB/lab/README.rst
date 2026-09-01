@@ -37,8 +37,8 @@ Wiring
 * Backpack VCC -> see the power/signal-level note in the lab's Korean
   doc before choosing 3.3V or 5V
 * Backpack GND -> board GND
-* Backpack SDA -> board GPIO1 (I2C0 SDA)
-* Backpack SCL -> board GPIO2 (I2C0 SCL)
+* Backpack SDA -> board GPIO8 (I2C0 SDA, series-wide pin as of 2026-09-01)
+* Backpack SCL -> board GPIO9 (I2C0 SCL, series-wide pin as of 2026-09-01)
 
 Building and Running
 *********************
