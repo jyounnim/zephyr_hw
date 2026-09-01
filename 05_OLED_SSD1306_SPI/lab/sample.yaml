@@ -1,0 +1,16 @@
+sample:
+  description: 0.96" SSD1306 OLED over SPI, updated from a dedicated thread
+  name: oled_ssd1306_spi
+common:
+  tags:
+    - display
+    - spi
+tests:
+  sample.display.ssd1306_spi:
+    platform_allow:
+      - esp32s3_devkitc/esp32s3/procpu
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "DisplayThread: ready \\(SPI mode\\)"
