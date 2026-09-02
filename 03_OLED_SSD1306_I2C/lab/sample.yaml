@@ -1,0 +1,18 @@
+sample:
+  description: >
+    Scan I2C0 for an SSD1306 OLED at 0x3C or 0x3D, auto-select whichever
+    responds, then draw "Hello World!" / "Addr 0x.." on a 128x64 panel.
+  name: oled_ssd1306_i2c
+common:
+  tags:
+    - i2c
+    - display
+tests:
+  sample.display.ssd1306_i2c_autoaddr:
+    platform_allow:
+      - esp32s3_devkitc/esp32s3/procpu
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "=== OLED SSD1306 \\(I2C, ESP32-S3\\) ==="
