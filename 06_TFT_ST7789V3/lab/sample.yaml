@@ -1,0 +1,18 @@
+sample:
+  description: >
+    Draw color bars and "Hello World!" on a 1.69" 240x280 ST7789V3 SPI
+    TFT panel using raw SPI writes (no Zephyr display driver).
+  name: tft_st7789v3
+common:
+  tags:
+    - spi
+    - display
+tests:
+  sample.display.st7789v3:
+    platform_allow:
+      - esp32s3_devkitc/esp32s3/procpu
+    harness: console
+    harness_config:
+      type: one_line
+      regex:
+        - "=== TFT ST7789V3 \\(SPI, 240x280\\) ==="
